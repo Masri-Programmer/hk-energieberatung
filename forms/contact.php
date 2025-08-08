@@ -1,41 +1,63 @@
 <?php
-  /**
-  * Requires the "PHP Email Form" library
-  * The "PHP Email Form" library is available only in the pro version of the template
-  * The library should be uploaded to: vendor/php-email-form/php-email-form.php
-  * For more info and help: https://bootstrapmade.com/php-email-form/
-  */
+// Fehlerausgabe aktivieren (nur für Entwicklung – später deaktivieren)
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+// Zieladresse
+$to = 'info@hk-energieberatung.de';
 
-  if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
-    include( $php_email_form );
-  } else {
-    die( 'Unable to load the "PHP Email Form" Library!');
-  }
+// Eingaben aus POST
+$name    = trim($_POST['name'] ?? '');
+$email   = trim($_POST['email'] ?? '');
+$subject = trim($_POST['subject'] ?? 'Kontaktformular');
+$message = trim($_POST['message'] ?? '');
+$honeypot = $_POST['website'] ?? ''; // Bot-Feld (muss leer sein)
 
-  $contact = new PHP_Email_Form;
-  $contact->ajax = true;
-  
-  $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+// Prüfen, ob das Honeypot-Feld ausgefüllt ist → dann Spam
+if (!empty($honeypot)) {
+  http_response_code(400);
+  echo "Bot-Verdacht erkannt.";
+  exit;
+}
 
-  // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
-  /*
-  $contact->smtp = array(
-    'host' => 'example.com',
-    'username' => 'example',
-    'password' => 'pass',
-    'port' => '587'
-  );
-  */
+// Eingaben validieren
+if (empty($name) || empty($email) || empty($message)) {
+  http_response_code(400);
+  echo "Bitte alle Pflichtfelder ausfüllen.";
+  exit;
+}
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+  http_response_code(400);
+  echo "Ungültige E-Mail-Adresse.";
+  exit;
+}
 
-  echo $contact->send();
+// Header-Injection verhindern
+if (preg_match("/[\r\n]/", $name) || preg_match("/[\r\n]/", $email)) {
+  http_response_code(400);
+  echo "Ungültige Zeichen im Formular.";
+  exit;
+}
+
+// Nachricht zusammenbauen
+$email_subject = "Kontaktformular: " . $subject;
+$email_body = "Neue Nachricht über das Kontaktformular:\n\n";
+$email_body .= "Name: $name\n";
+$email_body .= "E-Mail: $email\n\n";
+$email_body .= "Nachricht:\n$message\n";
+
+// Header setzen
+$headers = "From: $name <$email>\r\n";
+$headers .= "Reply-To: $email\r\n";
+$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+// E-Mail senden
+if (mail($to, $email_subject, $email_body, $headers)) {
+  http_response_code(200);
+  echo "Nachricht erfolgreich gesendet.";
+} else {
+  http_response_code(500);
+  echo "Beim Senden ist ein Fehler aufgetreten.";
+}
 ?>
