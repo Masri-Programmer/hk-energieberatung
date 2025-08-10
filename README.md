@@ -7,7 +7,7 @@
 <p align="center">
   The official website for HK Energieberatung, a company specializing in energy consulting for residential buildings.
   <br />
-  <a href="https://example.com"><strong>Explore the Live Site »</strong></a>
+  <a href="https://hk-energieberatung.de"><strong>Explore the Live Site »</strong></a>
 </p>
 
 ---
