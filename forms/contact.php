@@ -8,7 +8,7 @@ error_reporting(E_ALL);
 $to = 'info@hk-energieberatung.de';
 // The email address that emails will be sent FROM.
 // Using your main contact email is perfectly fine.
-$from_email = 'info@hk-energieberatung.de';
+$from_email = trim($_POST['email'] ?? '');
 
 // === GET FORM DATA ===
 $name    = trim($_POST['name'] ?? '');
