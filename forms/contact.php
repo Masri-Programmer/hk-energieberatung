@@ -73,6 +73,7 @@ $headers .= "X-Mailer: PHP/" . phpversion();
 // Send the email
 if (mail($to, $email_subject, $email_body, $headers)) {
   http_response_code(200);
+  echo "Ihre Nachricht wurde erfolgreich abgeschickt. Vielen Dank!";
 } else {
   http_response_code(500);
   echo "Beim Senden ist ein Fehler aufgetreten. Bitte prüfen Sie die Server-Logs.";
