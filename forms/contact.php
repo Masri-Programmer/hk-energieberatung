@@ -11,7 +11,8 @@ $name    = trim($_POST['name'] ?? '');
 $email   = trim($_POST['email'] ?? '');
 $subject = trim($_POST['subject'] ?? 'Kontaktformular');
 $message = trim($_POST['message'] ?? '');
-$honeypot = $_POST['website'] ?? '';
+$honeypot = $_POST['website'] ?? ''; // Bot-Feld (muss leer sein)
+
 // Prüfen, ob das Honeypot-Feld ausgefüllt ist → dann Spam
 if (!empty($honeypot)) {
   http_response_code(400);
@@ -54,9 +55,7 @@ $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 // E-Mail senden
 if (mail($to, $email_subject, $email_body, $headers)) {
   http_response_code(200);
-  echo "Nachricht erfolgreich gesendet.";
 } else {
   http_response_code(500);
   echo "Beim Senden ist ein Fehler aufgetreten.";
 }
-?>
