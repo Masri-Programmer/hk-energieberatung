@@ -1,61 +1,70 @@
 <?php
-// Fehlerausgabe aktivieren (nur für Entwicklung – später deaktivieren)
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Zieladresse
+// === CONFIGURATION ===
 $to = 'info@hk-energieberatung.de';
 
-// Eingaben aus POST
+// === GET FORM DATA ===
 $name    = trim($_POST['name'] ?? '');
 $email   = trim($_POST['email'] ?? '');
 $subject = trim($_POST['subject'] ?? 'Kontaktformular');
 $message = trim($_POST['message'] ?? '');
-$honeypot = $_POST['website'] ?? ''; // Bot-Feld (muss leer sein)
+$honeypot = $_POST['website'] ?? ''; // Bot-trap field (must be empty)
 
-// Prüfen, ob das Honeypot-Feld ausgefüllt ist → dann Spam
+// === VALIDATION & SECURITY ===
+
+// 1. Check honeypot field for spam
 if (!empty($honeypot)) {
   http_response_code(400);
-  echo "Bot-Verdacht erkannt.";
+  echo "Bot detection triggered.";
   exit;
 }
 
-// Eingaben validieren
+// 2. Check for empty required fields
 if (empty($name) || empty($email) || empty($message)) {
   http_response_code(400);
-  echo "Bitte alle Pflichtfelder ausfüllen.";
+  echo "Please fill out all required fields.";
   exit;
 }
 
+// 3. Validate email format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
   http_response_code(400);
-  echo "Ungültige E-Mail-Adresse.";
+  echo "Invalid email address format.";
   exit;
 }
 
-// Header-Injection verhindern
+// 4. Prevent header injection
 if (preg_match("/[\r\n]/", $name) || preg_match("/[\r\n]/", $email)) {
   http_response_code(400);
-  echo "Ungültige Zeichen im Formular.";
+  echo "Invalid characters detected in form data.";
   exit;
 }
 
-// Nachricht zusammenbauen
+// === COMPOSE AND SEND EMAIL ===
+
 $email_subject = "Kontaktformular: " . $subject;
-$email_body = "Neue Nachricht über das Kontaktformular:\n\n";
+$email_body = "You have received a new message via the contact form:\n\n";
 $email_body .= "Name: $name\n";
-$email_body .= "E-Mail: $email\n\n";
-$email_body .= "Nachricht:\n$message\n";
+$email_body .= "Email: $email\n\n";
+$email_body .= "Message:\n$message\n";
 
-// Header setzen
-$headers = "From: $name <$email>\r\n";
-$headers .= "Reply-To: $email\r\n";
+// --- CORRECTED HEADERS ---
+// The 'From' header MUST be an email from your server's domain to avoid spam filters.
+// The user's email goes into 'Reply-To'.
+$headers = "From: " . $from_email . "\r\n";
+$headers .= "Reply-To: " . $email . "\r\n";
 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+$headers .= "X-Mailer: PHP/" . phpversion();
 
-// E-Mail senden
+
+// Send the email
 if (mail($to, $email_subject, $email_body, $headers)) {
   http_response_code(200);
+  // Optional: You can return a success message here too
+  // echo "Message sent successfully!";
 } else {
   http_response_code(500);
-  echo "Beim Senden ist ein Fehler aufgetreten.";
+  echo "An error occurred while trying to send the message. Please check server logs.";
 }
