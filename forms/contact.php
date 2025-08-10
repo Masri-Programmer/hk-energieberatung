@@ -11,8 +11,7 @@ $name    = trim($_POST['name'] ?? '');
 $email   = trim($_POST['email'] ?? '');
 $subject = trim($_POST['subject'] ?? 'Kontaktformular');
 $message = trim($_POST['message'] ?? '');
-$honeypot = $_POST['website'] ?? ''; // Bot-Feld (muss leer sein)
-
+$honeypot = $_POST['website'] ?? '';
 // Prüfen, ob das Honeypot-Feld ausgefüllt ist → dann Spam
 if (!empty($honeypot)) {
   http_response_code(400);
