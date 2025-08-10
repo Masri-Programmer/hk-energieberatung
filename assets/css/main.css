@@ -765,7 +765,7 @@ section,
 /*--------------------------------------------------------------
 # Hero Section
 --------------------------------------------------------------*/
-.hero {
+.hero , .privacy-policy, .impressum{
   position: relative;
   padding-top: 160px;
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color), transparent 95%) 50%, color-mix(in srgb, var(--accent-color), transparent 98%) 25%, transparent 50%);
@@ -2475,3 +2475,12 @@ section,
 .starter-section {
   /* Add your styles here */
 }
+
+
+
+/*--------------------------------------------------------------
+# Datenschutz Section
+--------------------------------------------------------------*/
+/* .datenschutz, .impressum {
+  padding-top: 160px;
+} */
