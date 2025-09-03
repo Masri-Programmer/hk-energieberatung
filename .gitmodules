@@ -1,0 +1,3 @@
+[submodule "vue-vben-admin"]
+	path = vue-vben-admin
+	url = https://github.com/Masri-Programmer/hk-energieberatung.git
